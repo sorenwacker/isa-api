@@ -226,6 +226,7 @@ def get_data_file(assay):
 def load_df(path):
     df = ISATAB.read_tfile(path)
     df.replace(to_replace='', value=numpy.nan, inplace=True)
+    df = df.infer_objects(copy=False)
     return df
 
 
