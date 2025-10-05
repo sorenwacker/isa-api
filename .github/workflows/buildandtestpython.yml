@@ -39,7 +39,7 @@ jobs:
       - name: Test with python unittest
         run: |
           behave --no-capture --no-capture-stderr --format=progress features/isa-file-handler.feature
-          coverage run -m unittest discover -s tests/
+          python -W ignore::DeprecationWarning:jsonschema -m coverage run -m unittest discover -s tests/
           coverage report -m
       - name: Coveralls
         uses: AndreMiras/coveralls-python-action@develop
