@@ -10,8 +10,8 @@
 <br/><br/>
 
 [![Py versions](https://img.shields.io/pypi/pyversions/isatools.svg?style=flat&maxAge=3600)](https://pypi.python.org/pypi/isatools/)
-[![Build Status](https://travis-ci.org/ISA-tools/isa-api.svg?branch=master)](https://travis-ci.org/ISA-tools/isa-api/)
-[![Coverage Status](https://coveralls.io/repos/github/ISA-tools/isa-api/badge.svg?branch=master)](https://coveralls.io/github/ISA-tools/isa-api?branch=master)
+[![Build Status](https://github.com/sorenwacker/isa-api/actions/workflows/buildandtestpython.yml/badge.svg)](https://github.com/sorenwacker/isa-api/actions/workflows/buildandtestpython.yml)
+[![Coverage Status](https://coveralls.io/repos/github/sorenwacker/isa-api/badge.svg?branch=master)](https://coveralls.io/github/sorenwacker/isa-api?branch=master)
 [![PyPI version](https://badge.fury.io/py/isatools.svg)](https://pypi.python.org/pypi/isatools/)
 [![Documentation Status](https://readthedocs.org/projects/isatools/badge/?version=latest)](http://isatools.readthedocs.org/en/latest/?badge=latest)
 
