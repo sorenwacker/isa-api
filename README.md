@@ -9,8 +9,8 @@
 
 <br/><br/>
 
-[![Python 3.9-3.12](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
-[![Build Status](https://github.com/sorenwacker/isa-api/actions/workflows/buildandtestpython.yml/badge.svg?branch=python-3.12)](https://github.com/sorenwacker/isa-api/actions/workflows/buildandtestpython.yml)
+[![Python 3.9-3.12](https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg)](https://www.python.org/)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/sorenwacker/isa-api/buildandtestpython.yml?branch=python-3.12)](https://github.com/sorenwacker/isa-api/actions/workflows/buildandtestpython.yml)
 [![Coverage Status](https://coveralls.io/repos/github/sorenwacker/isa-api/badge.svg?branch=master)](https://coveralls.io/github/sorenwacker/isa-api?branch=master)
 [![PyPI version](https://badge.fury.io/py/isatools.svg)](https://pypi.python.org/pypi/isatools/)
 [![Documentation Status](https://readthedocs.org/projects/isatools/badge/?version=latest)](http://isatools.readthedocs.org/en/latest/?badge=latest)
