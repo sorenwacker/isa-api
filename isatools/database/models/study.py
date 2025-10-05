@@ -23,7 +23,8 @@ from isatools.database.models.utils import make_get_table_method
 class Study(Base):
     """ The SQLAlchemy model for the Study table """
 
-    __tablename__ = 'study'
+    __tablename__: str = 'study'
+    __allow_unmapped__ = True
 
     # Base fields
     study_id: Mapped[int] = Column(Integer, primary_key=True)

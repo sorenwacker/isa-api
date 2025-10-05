@@ -225,8 +225,7 @@ def get_data_file(assay):
 
 def load_df(path):
     df = ISATAB.read_tfile(path)
-    df.replace(to_replace='', value=numpy.nan, inplace=True)
-    df = df.infer_objects(copy=False)
+    df = df.map(lambda x: numpy.nan if x == '' else x).infer_objects(copy=False)
     return df
 
 
@@ -377,12 +376,10 @@ def get_sample_names(assay_df, measures_df):
 # Make sample metadata {{{1
 ################################################################
 
-def make_sample_metadata(study_df, assay_df, sample_names, normalize=True):
+def make_sample_metadata(study_df: object, assay_df, sample_names, normalize=True):
     # Normalize column names
-    study_df = study_df.set_axis(
-        axis=1, labels=make_names(study_df.axes[1].tolist()))
-    assay_df = assay_df.set_axis(
-        axis=1, labels=make_names(assay_df.axes[1].tolist()))
+    study_df = study_df.set_axis(axis=1, labels=make_names(study_df.axes[1].tolist()))
+    assay_df = assay_df.set_axis(axis=1, labels=make_names(assay_df.axes[1].tolist()))
 
     # Merge data frames
     sample_metadata = assay_df.merge(study_df, on='Sample.Name', sort=False)
@@ -498,7 +495,7 @@ def write_data_frame(df, output_dir, template_filename, study, assay):
 
     # NA values are removed by `read_tfile()` and replaced by ''.
     # Put them back here.
-    df_with_na = df.replace(to_replace='', value=numpy.nan)
+    df_with_na = df.map(lambda x: numpy.nan if x == '' else x)
 
     # Set filename
     filename = FilenameTemplate(template_filename).substitute(s=study, a=assay)
@@ -543,21 +540,20 @@ def filter_na_values(assays, samp_na_filtering=None, var_na_filtering=None):
             removed_sample_names = numpy.setdiff1d(
                 assay['samp']['sample.name'], samp['sample.name'])
             assay['samp'] = samp
-            assay['mat'].drop(
-                labels=removed_sample_names.tolist(), axis=1, inplace=True)
+            assay['mat'] = assay['mat'].drop(
+                labels=removed_sample_names.tolist(), axis=1)
 
         if var_na_filtering is not None:
             cols = make_names(var_na_filtering)
             var_names = assay['var']['variable.name'].tolist()
-            assay['var'].dropna(axis=0, how='all', subset=cols, inplace=True)
+            assay['var'] = assay['var'].dropna(axis=0, how='all', subset=cols)
             kept_var_names = assay['var']['variable.name'].tolist()
             removed_variable_names_index = []
             for i, v in enumerate(var_names):
                 if v not in kept_var_names:
                     removed_variable_names_index.append(i)
-            assay['mat'].drop(labels=[
-                assay['mat'].axes[0][i] for i in removed_variable_names_index],
-                axis=0, inplace=True)
+            assay['mat'] = assay['mat'].drop(labels=[assay['mat'].axes[0][i] for i in removed_variable_names_index],
+                                             axis=0)
 
 
 # Convert {{{1

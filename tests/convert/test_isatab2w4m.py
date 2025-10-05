@@ -21,6 +21,7 @@ def universal_filecmp(f1, f2):
             if not b1:
                 return True
 
+
 # Test presence of data folder
 def setUpModule():
     if not os.path.exists(utils.DATA_DIR):

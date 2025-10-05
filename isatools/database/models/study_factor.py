@@ -12,7 +12,7 @@ class StudyFactor(Base):
     """ The SQLAlchemy model for the StudyFactor table """
 
     __tablename__: str = 'factor'
-
+    __allow_unmapped__ = True
     # Base fields
     factor_id: Mapped[str] = Column(String, primary_key=True)
     name: Mapped[Optional[str]] = Column(String, nullable=True)

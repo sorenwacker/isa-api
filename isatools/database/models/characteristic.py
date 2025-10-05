@@ -17,6 +17,7 @@ class Characteristic(Base):
     """ The SQLAlchemy model for the Characteristic table """
 
     __tablename__: str = 'characteristic'
+    __allow_unmapped__ = True
     __table_args__: tuple = (*build_characteristic_constraints(), {"comment": "Characteristic table"})
 
     # Base fields

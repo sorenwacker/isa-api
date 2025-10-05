@@ -11,8 +11,9 @@ from isatools.database.models.utils import make_get_table_method
 class Comment(Base):
     """ The SQLAlchemy model for the Comment table """
 
-    __tablename__ = 'comment'
-    __table_args__ = (build_comment_constraints(), )
+    __tablename__: str = 'comment'
+    __table_args__: tuple = (build_comment_constraints(), )
+    __allow_unmapped__ = True
 
     # Base fields with Mapped annotations
     comment_id: Mapped[int] = mapped_column(Integer, primary_key=True)

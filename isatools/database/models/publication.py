@@ -11,7 +11,8 @@ from isatools.database.models.utils import make_get_table_method
 class Publication(Base):
     """ The SQLAlchemy model for the Publication table """
 
-    __tablename__ = 'publication'
+    __tablename__: str = 'publication'
+    __allow_unmapped__ = True
 
     # Base fields with Mapped annotations
     publication_id: Mapped[str] = mapped_column(String, primary_key=True)

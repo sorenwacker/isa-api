@@ -11,6 +11,7 @@ class OntologySource(Base):
     """ The SQLAlchemy model for the OntologySourceReference table """
 
     __tablename__: str = 'ontology_source'
+    __allow_unmapped__ = True
 
     ontology_source_id: Mapped[str] = Column(String, primary_key=True)
     name: Mapped[str] = Column(String)
