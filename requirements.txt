@@ -29,7 +29,7 @@ httpretty==1.1.4
 sure==2.0.1
 coveralls==3.3.1 #; python_version < '3.13'
 rdflib~=7.0.0
-SQLAlchemy==1.4.52 #2.0.31
+SQLAlchemy>=2.0.0 #2.0.31
 python-dateutil~=2.9.0.post0
 Flask~=3.1.0
 flask_sqlalchemy~=3.0.2
