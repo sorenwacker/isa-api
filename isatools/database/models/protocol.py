@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import relationship, Session, Mapped
 
 from isatools.model import Protocol as ProtocolModel
 from isatools.database.models.relationships import study_protocols, protocol_parameters
@@ -13,25 +13,25 @@ class Protocol(Base):
     __tablename__: str = 'protocol'
 
     # Base fields
-    protocol_id: str = Column(String, primary_key=True)
-    name: str = Column(String)
-    description: str = Column(String)
-    uri: str = Column(String)
-    version: str = Column(String)
+    protocol_id: Mapped[str] = Column(String, primary_key=True)
+    name: Mapped[str] = Column(String)
+    description: Mapped[str] = Column(String)
+    uri: Mapped[str] = Column(String)
+    version: Mapped[str] = Column(String)
 
     # Relationships back-ref
-    studies: relationship = relationship('Study', secondary=study_protocols, back_populates='protocols')
+    studies: Mapped[list['Study']] = relationship('Study', secondary=study_protocols, back_populates='protocols')
 
     # References: one-to-many
-    comments = relationship('Comment', back_populates='protocol')
+    comments: Mapped[list['Comment']] = relationship('Comment', back_populates='protocol')
 
     # Relationships: many-to-many
-    protocol_parameters: relationship = relationship(
+    protocol_parameters: Mapped[list['Parameter']] = relationship(
         'Parameter', secondary=protocol_parameters, back_populates='protocols')
 
     # Relationships many-to-one
-    protocol_type_id: str = Column(String, ForeignKey('ontology_annotation.ontology_annotation_id'))
-    protocol_type: relationship = relationship('OntologyAnnotation', backref='protocols')
+    protocol_type_id: Mapped[str] = Column(String, ForeignKey('ontology_annotation.ontology_annotation_id'))
+    protocol_type: Mapped['OntologyAnnotation'] = relationship('OntologyAnnotation', backref='protocols')
 
     def to_json(self) -> dict:
         """ Convert the SQLAlchemy object to a dictionary
@@ -64,10 +64,10 @@ def make_protocol_methods():
 
         :return: The SQLAlchemy object ready to be committed to the database session.
         """
-        protocol = session.query(Protocol).get(self.id)
+        protocol = session.get(Protocol, self.id)
         if protocol:
             return protocol
-        return Protocol(
+        protocol = Protocol(
             protocol_id=self.id,
             name=self.name,
             description=self.description,
@@ -77,6 +77,8 @@ def make_protocol_methods():
             protocol_parameters=[parameter.to_sql(session) for parameter in self.parameters],
             protocol_type=self.protocol_type.to_sql(session) if self.protocol_type else None
         )
+        session.add(protocol)
+        return protocol
 
     setattr(ProtocolModel, 'to_sql', to_sql)
     setattr(ProtocolModel, 'get_table', make_get_table_method(Protocol))

@@ -2,7 +2,8 @@ from datetime import datetime
 import dateutil.parser as date
 
 from sqlalchemy import Column, Integer, String, Date
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import relationship, Session, Mapped
+from sqlalchemy.orm.decl_api import declared_attr
 
 from isatools.model import Investigation as InvestigationModel
 from isatools.database.models.relationships import investigation_publications, investigation_ontology_source
@@ -16,24 +17,24 @@ class Investigation(Base):
     __tablename__: str = 'investigation'
 
     # Base fields
-    investigation_id: int = Column(Integer, primary_key=True)
-    isa_identifier: str = Column(String, nullable=False)
-    identifier: str = Column(String, nullable=False)
-    title: str = Column(String, nullable=True)
-    description: str = Column(String, nullable=True)
-    submission_date: datetime or None = Column(Date, nullable=True)
-    public_release_date: datetime or None = Column(Date, nullable=True)
+    investigation_id: Mapped[int] = Column(Integer, primary_key=True)
+    isa_identifier: Mapped[str] = Column(String, nullable=False)
+    identifier: Mapped[str] = Column(String, nullable=False)
+    title: Mapped[str] = Column(String, nullable=True)
+    description: Mapped[str] = Column(String, nullable=True)
+    submission_date: Mapped[Date] = Column(Date, nullable=True)
+    public_release_date: Mapped[Date] = Column(Date, nullable=True)
 
     # Relationships: one-to-many
-    studies: relationship = relationship('Study', back_populates="investigation")
-    comments: relationship = relationship('Comment', back_populates='investigation')
-    contacts: relationship = relationship('Person', back_populates='investigation')
+    studies: Mapped[list['Study']] = relationship('Study', back_populates="investigation")
+    comments: Mapped[list['Comment']] = relationship('Comment', back_populates='investigation')
+    contacts: Mapped[list['Person']] = relationship('Person', back_populates='investigation')
 
     # Relationships: many-to-many
-    publications: relationship = relationship(
+    publications: Mapped[list['Publication']] = relationship(
         'Publication', secondary=investigation_publications, back_populates='investigations'
     )
-    ontology_source_reference: relationship = relationship(
+    ontology_source_reference: Mapped[list['OntologySource']] = relationship(
         'OntologySource', secondary=investigation_ontology_source, back_populates='investigations'
     )
 
@@ -70,11 +71,11 @@ def make_investigation_methods() -> None:
 
         :return: The SQLAlchemy object ready to be added and committed to the database session.
         """
-        submission_date: datetime or None = None
+        submission_date: Date or None = None
         if self.submission_date:
             submission_date = date.parse(self.submission_date)
 
-        publication_date: datetime or None = None
+        publication_date: Date or None = None
         if self.public_release_date:
             publication_date = date.parse(self.public_release_date)
 

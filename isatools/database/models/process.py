@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, update
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import relationship, Session, Mapped, mapped_column
 
 from isatools.model import Process as ProcessModel
 from isatools.database.utils import Base
@@ -15,33 +16,38 @@ class Process(Base):
 
     __tablename__: str = 'process'
 
-    process_id: int = Column(String, primary_key=True)
-    name: str = Column(String)
-    performer: str = Column(String)
-    date: datetime = Column(Date)
+    process_id: Mapped[str] = mapped_column(String, primary_key=True)
+    name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    performer: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    date: Mapped[Optional[datetime]] = mapped_column(Date, nullable=True)
 
     # Relationships self-referential
-    previous_process_id: str = Column(String, ForeignKey('process.process_id'))
-    next_process_id: str = Column(String, ForeignKey('process.process_id'))
+    previous_process_id: Mapped[Optional[str]] = mapped_column(String, ForeignKey('process.process_id'), nullable=True)
+    next_process_id: Mapped[Optional[str]] = mapped_column(String, ForeignKey('process.process_id'), nullable=True)
 
     # Relationships back reference
-    study_id: int = Column(Integer, ForeignKey('study.study_id'))
-    study: relationship = relationship('Study', back_populates='process_sequence')
-    assay_id: int = Column(Integer, ForeignKey('assay.assay_id'))
-    assay: relationship = relationship('Assay', back_populates='process_sequence')
+    study_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('study.study_id'), nullable=True)
+    study: Mapped[Optional['Study']] = relationship('Study', back_populates='process_sequence')
+    assay_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('assay.assay_id'), nullable=True)
+    assay: Mapped[Optional['Assay']] = relationship('Assay', back_populates='process_sequence')
 
     # Relationships: many-to-one
-    protocol_id: str = Column(String, ForeignKey('protocol.protocol_id'))
-    protocol: relationship = relationship('Protocol', backref='processes')
+    protocol_id: Mapped[Optional[str]] = mapped_column(String, ForeignKey('protocol.protocol_id'), nullable=True)
+    protocol: Mapped[Optional['Protocol']] = relationship('Protocol', backref='processes')
 
     # Relationships: many-to-many
-    inputs: relationship = relationship('InputOutput', secondary=process_inputs, back_populates='processes_inputs')
-    outputs: relationship = relationship('InputOutput', secondary=process_outputs, back_populates='processes_outputs')
-    parameter_values: relationship = relationship(
-        'ParameterValue', secondary=process_parameter_values, back_populates='processes_parameter_values')
+    inputs: Mapped[list['InputOutput']] = relationship(
+        'InputOutput', secondary=process_inputs, back_populates='processes_inputs'
+    )
+    outputs: Mapped[list['InputOutput']] = relationship(
+        'InputOutput', secondary=process_outputs, back_populates='processes_outputs'
+    )
+    parameter_values: Mapped[list['ParameterValue']] = relationship(
+        'ParameterValue', secondary=process_parameter_values, back_populates='processes_parameter_values'
+    )
 
     # Relationships: one-to-many
-    comments: relationship = relationship('Comment', back_populates='process')
+    comments: Mapped[list['Comment']] = relationship('Comment', back_populates='process')
 
     def to_json(self) -> dict:
         """ Convert the SQLAlchemy object to a dictionary
@@ -77,7 +83,7 @@ def make_process_methods():
 
         :return: The SQLAlchemy object ready to be committed to the database session.
         """
-        process = session.query(Process).get(self.id)
+        process = session.get(Process, self.id)
         if process:
             return process
 
@@ -89,7 +95,7 @@ def make_process_methods():
         for data_output in self.outputs:
             outputs.append(InputOutput(io_id=data_output.id, io_type='output'))
 
-        return Process(
+        process = Process(
             process_id=self.id,
             name=self.name,
             performer=self.performer,
@@ -100,6 +106,8 @@ def make_process_methods():
             outputs=outputs,
             parameter_values=[parameter_value.to_sql(session) for parameter_value in self.parameter_values]
         )
+        session.add(process)
+        return process
 
     def update_plink(self, session: Session):
         """ Update the previous and next process links for the process.

@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, ForeignKey
-from sqlalchemy.orm import relationship, Session
+from typing import Optional
+from sqlalchemy import String, ForeignKey
+from sqlalchemy.orm import relationship, Session, mapped_column, Mapped
 
 from isatools.model import Publication as PublicationModel
 from isatools.database.models.relationships import investigation_publications, study_publications
@@ -10,27 +11,27 @@ from isatools.database.models.utils import make_get_table_method
 class Publication(Base):
     """ The SQLAlchemy model for the Publication table """
 
-    __tablename__: str = 'publication'
+    __tablename__ = 'publication'
 
-    # Base fields
-    publication_id: str = Column(String, primary_key=True)
-    author_list: str = Column(String, nullable=True)
-    doi: str = Column(String, nullable=True)
-    pubmed_id: str = Column(String, nullable=True)
-    title: str = Column(String, nullable=True)
+    # Base fields with Mapped annotations
+    publication_id: Mapped[str] = mapped_column(String, primary_key=True)
+    author_list: Mapped[str] = mapped_column(String, nullable=True)
+    doi: Mapped[str] = mapped_column(String, nullable=True)
+    pubmed_id: Mapped[str] = mapped_column(String, nullable=True)
+    title: Mapped[str] = mapped_column(String, nullable=True)
 
     # Relationships: back-ref
-    investigations: relationship = relationship(
+    investigations: Mapped[list['Investigation']] = relationship(
         'Investigation', secondary=investigation_publications, back_populates='publications'
     )
-    studies: relationship = relationship('Study', secondary=study_publications, back_populates='publications')
+    studies: Mapped[list['Study']] = relationship('Study', secondary=study_publications, back_populates='publications')
 
-    # Relationships many-to-one
-    status_id: str = Column(String, ForeignKey('ontology_annotation.ontology_annotation_id'))
-    status: relationship = relationship('OntologyAnnotation', backref='publications')
+    # Relationships many-to-one with ForeignKey
+    status_id: Mapped[Optional[str]] = mapped_column(String, ForeignKey('ontology_annotation.ontology_annotation_id'), nullable=True)
+    status: Mapped[Optional['OntologyAnnotation']] = relationship('OntologyAnnotation', backref='publications')
 
-    # Relationships
-    comments: relationship = relationship('Comment', back_populates='publication')
+    # Relationships with Comment
+    comments: Mapped[list['Comment']] = relationship('Comment', back_populates='publication')
 
     def to_json(self) -> dict:
         """ Convert the SQLAlchemy object to a dictionary
@@ -58,9 +59,9 @@ def make_publication_methods():
         :param self: the Publication object. Will be injected automatically.
         :param session: the SQLAlchemy session. Will be injected automatically.
 
-        :return: The SQLAlchemy object ready to committed to the database session.
+        :return: The SQLAlchemy object ready to commit to the database session.
         """
-        publication = session.query(Publication).get(self.doi)
+        publication = session.get(Publication, self.doi)
         if publication:
             return publication
         publication = Publication(

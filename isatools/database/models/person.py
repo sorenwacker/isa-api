@@ -1,5 +1,6 @@
+from typing import Optional
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import relationship, Session, Mapped
 
 from isatools.model import Person as PersonModel
 from isatools.database.utils import Base
@@ -12,24 +13,26 @@ class Person(Base):
 
     __tablename__: str = 'person'
 
-    person_id: int = Column(Integer, primary_key=True)
-    last_name: str = Column(String)
-    first_name: str = Column(String)
-    mid_initials: str = Column(String)
-    email: str = Column(String)
-    phone: str = Column(String)
-    fax: str = Column(String)
-    address: str = Column(String)
-    affiliation: str = Column(String)
+    person_id: Mapped[int] = Column(Integer, primary_key=True)
+    last_name: Mapped[Optional[str]] = Column(String, nullable=True)
+    first_name: Mapped[Optional[str]] = Column(String, nullable=True)
+    mid_initials: Mapped[Optional[str]] = Column(String, nullable=True)
+    email: Mapped[Optional[str]] = Column(String, nullable=True)
+    phone: Mapped[Optional[str]] = Column(String, nullable=True)
+    fax: Mapped[Optional[str]] = Column(String, nullable=True)
+    address: Mapped[Optional[str]] = Column(String, nullable=True)
+    affiliation: Mapped[Optional[str]] = Column(String, nullable=True)
 
-    investigation_id: int = Column(Integer, ForeignKey('investigation.investigation_id'))
-    investigation: relationship = relationship('Investigation', back_populates='contacts')
-    study_id: int = Column(Integer, ForeignKey('study.study_id'))
-    study: relationship = relationship('Study', back_populates='contacts')
-    comments: relationship = relationship('Comment', back_populates='person')
+    investigation_id: Mapped[Optional[int]] = Column(Integer, ForeignKey('investigation.investigation_id'), nullable=True)
+    investigation: Mapped[Optional["Investigation"]] = relationship('Investigation', back_populates='contacts')
+    study_id: Mapped[Optional[int]] = Column(Integer, ForeignKey('study.study_id'), nullable=True)
+    study: Mapped[Optional["Study"]] = relationship('Study', back_populates='contacts')
+    comments: Mapped[list["Comment"]] = relationship('Comment', back_populates='person')
 
     # Relationships many-to-many
-    roles: relationship = relationship('OntologyAnnotation', secondary=person_roles, back_populates='roles')
+    roles: Mapped[list["OntologyAnnotation"]] = relationship(
+        'OntologyAnnotation', secondary=person_roles, back_populates='roles'
+    )
 
     def to_json(self) -> dict:
         """ Convert the SQLAlchemy object to a dictionary
@@ -63,6 +66,11 @@ def make_person_methods():
 
         :return: The SQLAlchemy object ready to be committed to the database session.
         """
+        
+        print(self)
+        print(self.roles)
+        print(self.comments)
+        
         return Person(
             first_name=self.first_name,
             last_name=self.last_name,
